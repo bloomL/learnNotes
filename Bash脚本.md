@@ -178,7 +178,7 @@ source test.sh
 **单引号（'）**
 'STRING' 将会阻止 STRING 中**所有**特殊字符的解释
 
-![image-20210129102414322](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210129102414322.png)
+![image-20210129102414322](Bash脚本.assets/image-20210129102414322.png)
 
 ##### 斜线和反斜线
 
@@ -436,7 +436,7 @@ readonly myUrl
 myUrl="http://www.shiyanlou.com"
 ```
 
-![image-20210129164332956](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210129164332956.png)
+![image-20210129164332956](Bash脚本.assets/image-20210129164332956.png)
 
 ##### 特殊变量
 
@@ -655,7 +655,7 @@ fi
 
 ##### 文件测试运算符
 
-![image-20210130153602711](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210130153602711.png)
+![image-20210130153602711](Bash脚本.assets/image-20210130153602711.png)
 
 ```shell
 #!/bin/bash

@@ -20,13 +20,13 @@ Committing Files
 
    **git status**
 
-   ![image-20210126103956430](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210126103956430.png)
+   ![image-20210126103956430](git.assets/image-20210126103956430.png)
 
    **git add hello-world.js**
 
    **git status**
 
-   ![image-20210126104026851](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210126104026851.png)
+   ![image-20210126104026851](git.assets/image-20210126104026851.png)
 
 4. Git commit
 

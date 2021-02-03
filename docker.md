@@ -14,7 +14,7 @@
 
    docker run -d --name redisDynamic **-p 6379 **redis
 
-   ![](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210125142740890.png)
+   ![](docker.assets/image-20210125142740890.png)
 
 4. data stored keeps being removed when she deletes and re-creates a container. Jane needs the data to be persisted and reused when she recreates a container.(删除并重新创建容器时，存储的数据将不断被删除。 Jane在重新创建容器时需要保留并重用数据。)
 
@@ -44,7 +44,7 @@
 
    **docker build -t <build-directory>**
 
-   ![](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210125150706707.png)
+   ![](docker.assets/image-20210125150706707.png)
 
    docker build -t webserver-image:v1 **.**
 

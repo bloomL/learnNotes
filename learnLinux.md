@@ -71,7 +71,7 @@ sudo chown shiyanlou lltest
 
 ##### 修改文件权限
 
-![](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210127145938799.png)
+![](learnLinux.assets/image-20210127145938799.png)
 
 我们刚刚新建的文件 lltest的权限是 **rw-rw-rw-**，换成对应的十进制表示就是 666，这就表示这个文件的拥有者，所属用户组和其他用户具有读写权限，不具有执行权限。
 
@@ -94,7 +94,7 @@ chmod 600 lltest
 
 ##### 目录
 
-![](C:\Users\l'g\Desktop\picture\4-1.png)
+![](learnLinux.assets/4-1.png)
 
 **cd** 切换目录  **.**当前目录	**..**上级目录
 
@@ -239,7 +239,7 @@ sudo find /etc/ -name interfaces	# sudo 只是普通用户，对 /etc 目录下�
 
 #### 文件打包和解压缩
 
-![](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210127150649550.png)
+![](learnLinux.assets/image-20210127150649550.png)
 
 
 
@@ -522,7 +522,7 @@ awk 'BEGIN{FS="." OFS="\t"}{if(NR==2){print $1,$2,$3}}' test   # ???问题
 top 
 ```
 
-![image-20210128142324832](C:\Users\l'g\AppData\Roaming\Typora\typora-user-images\image-20210128142324832.png)
+![image-20210128142324832](learnLinux.assets/image-20210128142324832.png)
 
 **top第一行数据**
 
