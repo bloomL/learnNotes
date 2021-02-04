@@ -523,9 +523,49 @@ http {
     error_log /var/log/nginx/error.log
     
     ##
-    #
+    # Gzip settings
     ##
-     
+        
+    # 设置 nginx gzip 压缩发送的数据。这会减少需要发送的数据的数量
+    gzip on;
+    # 为指定的客户端禁用 gzip 功能
+    gzip_disable "msie6";
+    gzip_vary on;
+    # 允许或禁止基于请求、响应的压缩。设置为 any，就可以 gzip 所有的请求
+    gzip_proxied any;
+    # 设置了数据压缩的等级。等级可以是 1-9 的任意一个值，9 表示最慢但是最高比例的压缩。
+    gzip_comp_level 9;
+    gzip_buffers 16 8k;
+    # 设置进行 gzip 的类型
+    gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    
+	##
+    # Virtual Host Configs
+    ##
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+        
+    
+# mail {
+#   # See sample authentication script at:
+#   # http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+#
+#   # auth_http localhost/auth.php;
+#   # pop3_capabilities "TOP" "USER";
+#   # imap_capabilities "IMAP4rev1" "UIDPLUS";
+#
+#   server {
+#       listen     localhost:110;
+#       protocol   pop3;
+#       proxy      on;
+#   }
+#
+#   server {
+#       listen     localhost:143;
+#       protocol   imap;
+#       proxy      on;
+#   }
 }
 ```
 
