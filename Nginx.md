@@ -569,3 +569,226 @@ http {
 }
 ```
 
+-awm.conf
+
+```bash
+    #WebSocket 反向代理
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+    #负载均衡
+    upstream chakra {
+        #ip_hash;
+        server 127.0.0.1:5021;
+    }
+    upstream httpsChakra {
+        #ip_hash;
+        server 127.0.0.1:15021;
+    }
+    upstream uais {
+        #ip_hash;
+        server 127.0.0.1:10038;
+    }
+
+    upstream utilities {
+        server 127.0.0.1:5151;
+    }
+
+    #upstream offlinemap {
+            #server 192.168.1.225:8081;
+    #}
+
+	#监听的服务器配置
+    server{
+    	# 监听端口
+        listen 8000;
+        # 访问域名
+        server_name localhost;
+        # rewrite实现RUL地址的重定向 ^(.*)$表示匹配所有 匹配成功后跳转到https://$host:8001 permanent是永久301重定向标记
+        rewrite ^(.*)$  https://$host:8001 permanent;
+        # URL匹配
+        location ~ / {
+        	# 首页文件
+            index index.html index.php index.htm;
+        }
+    }
+
+    server {
+        listen 8001 ssl;
+        server_name          localhost;
+        ssl_certificate      ssl/private.crt;
+        #证书和密钥文件均放在nginx/conf/ssl目录下
+        ssl_certificate_key  ssl/private.key;
+        ssl_session_cache    shared:SSL:10m;
+        #设置存储session参数的缓存的类型和大小
+        ssl_session_timeout  5m;
+        #指定客户端可以重用会话参数的时间
+        ssl_protocols        TLSv1 TLSv1.1 TLSv1.2;
+        # 开启gzip组件
+        gzip on;
+        gzip_static on;
+        #缓冲(压缩在内存中缓冲几块? 每块多大?)
+        gzip_min_length 1k;
+        gzip_buffers 4 32k;
+        gzip_http_version 1.1;
+        #推荐6 压缩级别(级别越高,压的越小,越浪费CPU计算资源)
+        gzip_comp_level 5;
+        gzip_proxied off;
+        gzip_types text/plain application/x-javascript text/css application/xml;
+        gzip_vary on;
+        #配置禁用gzip条件，支持正则。此处表示ie6及以下不启用gzip（因为ie低版本不支持）
+        gzip_disable "MSIE [1-6].";
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+        add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';       
+        # 匹配任何查询
+        location / {
+            charset utf-8;
+            # windows 注意目录反斜杠和下面location ~ 改成相同路径
+            root   /home/public/nginx/nginx-1.14.0/html/awm/dist;
+            index  index.html;
+            add_header Access-Control-Allow-Origin *;
+            add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+            add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+            if ($request_method = 'OPTIONS') {
+                return 204;
+            }
+        }
+		# 匹配以...结尾
+        location ~ .*\.(js|css|gif|jpg|jpeg|png|bmp|swf|flv|html|htm|ico)$ {
+            root   /home/public/nginx/nginx-1.14.0/html/awm/dist;
+            expires 10d;
+        }
+		# 匹配以/api/ 开头
+        location  ^~ /api/ {
+            proxy_pass http://chakra;
+        }
+
+        location  ^~ /httpsApi/ {
+            proxy_read_timeout 300s;
+            proxy_send_timeout 300s;
+            client_max_body_size 1000m;
+            proxy_pass https://httpsChakra/api/;
+        }
+
+        location  ^~ /cloud/uais {
+            proxy_pass http://uais;
+        }
+        #离线地图
+        #location /tiles/ {
+            #proxy_pass http://offlinemap;
+        #}
+        location ^~ /vodio/ {
+            root /dist/vodio/;
+        }
+
+        location ^~ /chrome {
+            proxy_pass http://utilities;
+        }
+
+        location  ^~ /api/utilities/ {
+            proxy_pass http://utilities;
+        }
+
+        location ^~ /common/websocket/ {
+        	#代理设置
+            proxy_pass http://chakra;
+            #连接成功后，后端服务器响应时间(代理接收超时)
+            proxy_read_timeout 300s;
+            #后端服务器数据回传时间(代理发送超时)
+            proxy_send_timeout 300s;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
+
+        location ^~ /static/ {
+            root /opt/project/ncp/ncp-surface;
+         # 对于 static/，使用强缓存，通过 Cache-Control 的 max-age 或者 Expires 判断，命中则返回 200
+            expires 30d;
+        }
+
+        #error_page  404              /404.html;
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+```
+
+nginx.conf
+
+```nginx
+#user  www www;
+worker_processes  auto;
+
+error_log  logs/error.log crit;
+pid        logs/nginx.pid;
+
+#Specifies the value for maximum file descriptors that can be opened by this process. 
+worker_rlimit_nofile 1024;
+
+events 
+{
+  #use epoll;
+  worker_connections 1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    #charset  gb2312;
+
+    server_names_hash_bucket_size 128;
+    client_header_buffer_size 32k;
+    large_client_header_buffers 4 32k;
+    client_max_body_size 8m;
+
+    sendfile on;
+    tcp_nopush     on;
+
+    keepalive_timeout 15;
+
+    tcp_nodelay on;
+
+    #后端返回了shiro的readme比较大，这里需要配置，否则会出现502错误
+    proxy_buffer_size   128k;
+    proxy_buffers   4 256k;
+    proxy_busy_buffers_size   256k;
+    proxy_redirect off;
+    proxy_set_header  Host  $host;
+    proxy_set_header  X-Real-IP  $remote_addr;  
+    proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+
+    fastcgi_connect_timeout 300;
+    fastcgi_send_timeout 300;
+    fastcgi_read_timeout 300;
+    fastcgi_buffer_size 128k;
+    fastcgi_buffers 32 32k;
+    fastcgi_busy_buffers_size 128k;
+    fastcgi_temp_file_write_size 128k;
+
+    gzip on;
+    gzip_min_length  1k;
+    gzip_buffers     4 16k;
+    gzip_http_version 1.0;
+    gzip_comp_level 2;
+    gzip_types       text/plain application/x-javascript text/css application/xml;
+    gzip_vary on;
+    gzip_disable msie6;
+    #limit_zone  crawler  $binary_remote_addr  10m;
+    log_format '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" "$http_x_forwarded_for"';
+    include servers/*.conf;
+}
+```
+
